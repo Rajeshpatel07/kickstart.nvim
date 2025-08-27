@@ -791,6 +791,9 @@ require('lazy').setup({
         -- You can use 'stop_after_first' to run the first available formatter from the list
         c = { 'clang-format' },
         javascript = { 'biome', 'prettier', stop_after_first = true },
+        javascriptreact = { 'biome', 'prettier', stop_after_first = true },
+        typescript = { 'biome', 'prettier', stop_after_first = true },
+        typescriptreact = { 'biome', 'prettier', stop_after_first = true },
       },
     },
   },

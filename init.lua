@@ -141,6 +141,9 @@ vim.o.signcolumn = 'yes'
 -- Decrease update time
 vim.o.updatetime = 250
 
+-- enable true colors
+vim.opt.termguicolors = true
+
 -- Decrease mapped sequence wait time
 vim.o.timeoutlen = 300
 
@@ -157,7 +160,7 @@ vim.o.splitbelow = true
 --   See `:help lua-options`
 --   and `:help lua-options-guide`
 vim.o.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '  ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
@@ -787,8 +790,9 @@ require('lazy').setup({
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
-        --
+
         -- You can use 'stop_after_first' to run the first available formatter from the list
+        go = { 'gofumpt' },
         c = { 'clang-format' },
         javascript = { 'biome', 'prettier', stop_after_first = true },
         javascriptreact = { 'biome', 'prettier', stop_after_first = true },

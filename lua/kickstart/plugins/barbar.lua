@@ -23,7 +23,7 @@ return {
     tabpages = true,
     auto_hide = false,
     icons = {
-      preset = 'slanted',
+      preset = 'default',
     },
   },
 }

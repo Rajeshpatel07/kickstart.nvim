@@ -20,6 +20,11 @@ return {
       follow_current_file = {
         enabled = true,
       },
+      window = {
+        mappings = {
+          ['P'] = { 'toggle_preview', config = { use_float = false } }, -- Force split preview
+        },
+      },
     },
   },
 }

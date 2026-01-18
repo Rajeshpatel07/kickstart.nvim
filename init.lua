@@ -204,6 +204,70 @@ vim.keymap.set('n', '<leader>w/', '<cmd>split<CR> <C-w>L', { desc = 'split scree
 vim.keymap.set('n', '<leader>w-', '<cmd>split<CR>', { desc = 'split screen horizontally in neovim' })
 vim.keymap.set('n', '<leader>g', '<cmd>terminal<CR> i  lazygit<cmd>\n<CR>', { desc = 'open lazygit' })
 
+-- WARN: The below code is just for specific purpose
+
+vim.keymap.set('n', '<leader>r', function()
+  -- Get all the file details as before
+  local filename = vim.fn.expand '%:t'
+  local dir = vim.fn.expand '%:p:h'
+  local filetype = vim.bo.filetype
+
+  -- 1. Create the command to run
+  local original_cmd = string.format('bash ~/.config/nvim/scripts/run-code.sh %s %s %s', filename, filetype, dir)
+
+  -- 2. Create a shell command that prints a message and waits for 'Enter'
+  -- We use `printf` to print the message and `read -r` to wait for a keypress.
+  local shell_wait_cmd = "printf '\\n\\n Press Enter to exit... '; read -r"
+
+  -- 3. Chain the original command with the wait command
+  -- The terminal will execute the original command, and *then* execute the wait command.
+  local cmd_to_run = string.format('%s; %s', original_cmd, shell_wait_cmd)
+
+  -- 4. Create a new, empty "scratch" buffer
+  local bufnr = vim.api.nvim_create_buf(false, true)
+
+  -- 5. Define the floating window's appearance
+  local win_height = math.ceil(vim.o.lines * 0.6)
+  local win_width = math.ceil(vim.o.columns * 0.6)
+  local row = math.ceil((vim.o.lines - win_height) / 2)
+  local col = math.ceil((vim.o.columns - win_width) / 2)
+
+  local win_config = {
+    relative = 'editor',
+    width = win_width,
+    height = win_height,
+    row = row,
+    col = col,
+    style = 'minimal',
+    border = 'rounded',
+  }
+
+  -- 6. Open the floating window with the empty buffer
+  --    We use `true` to enter (focus) the new window
+  local win_id = vim.api.nvim_open_win(bufnr, true, win_config)
+
+  -- 7. NOW that we are inside the floating window, start the terminal.
+  --    The `on_exit` callback will only trigger *after* the `read -r` command completes (i.e., after you press Enter).
+  vim.fn.termopen(cmd_to_run, {
+    on_exit = function(j, code, event)
+      -- A small delay to prevent screen flicker and ensure
+      -- the buffer is ready to be closed.
+      vim.defer_fn(function()
+        -- Check if the buffer is still valid before deleting
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          -- Close the terminal buffer without saving
+          vim.api.nvim_buf_delete(bufnr, { force = true })
+        end
+      end, 100) -- 100ms delay
+    end,
+  })
+
+  -- 8. Switch to insert mode so you can start typing immediately
+  --    if the program asks for input.
+  vim.cmd 'startinsert'
+end, { desc = 'Run code in floating terminal' })
+-- WARN: End of the Keybind
+
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -691,7 +755,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {},
+        -- clangd = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -929,21 +993,43 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use :Telescope colorscheme.
-    'navarasu/onedark.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'dark', 'cool','deep'.
-      require('onedark').setup {
-        style = 'darker', -- change this to your perferred style
-        transparent = true, -- show/hide background
-        term_colors = true, -- change terminal color as per the style
-      }
-      require('onedark').load()
+    -- TODO: onedark color scheme starts.
+    -- 'navarasu/onedark.nvim',
+    -- priority = 1000, -- Make sure to load this before all the other start plugins.
+    -- init = function()
+    --   -- Load the colorscheme here.
+    --   -- Like many other themes, this one has different styles, and you could load
+    --   -- any other, such as 'dark', 'cool','deep'.
+    --   require('onedark').setup {
+    --     style = 'darker', -- change this to your perferred style
+    --     transparent = true, -- show/hide background
+    --     term_colors = true, -- change terminal color as per the style
+    --   }
+    --   require('onedark').load()
+    --
+    --   -- You can configure highlights by doing something like:
+    --   vim.cmd.hi 'Comment gui=none'
+    -- end,
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+    'rose-pine/neovim',
+    name = 'rose-pine', -- Required for Telescope colorscheme to recognize it
+    priority = 1000, -- Load early, like onedark
+    config = function()
+      require('rose-pine').setup {
+        variant = 'moon', -- 'auto' (detects based on time), or 'main', 'moon', 'dawn'
+        dark_variant = 'main', -- Default dark variant
+        enable = {
+          terminal = true,
+        },
+        styles = {
+          italic = false,
+          transparency = true, -- Enable background transparency
+        },
+        -- Optional: Customize further (e.g., dim inactive windows)
+        dim_inactive_windows = false,
+      }
+      -- Apply the colorscheme (use 'rose-pine-moon' for moon variant, etc.)
+      vim.cmd.colorscheme 'rose-pine'
     end,
   },
 
@@ -1030,6 +1116,8 @@ require('lazy').setup({
   require 'kickstart.plugins.gitsigns',
   require 'kickstart.plugins.barbar',
   require 'kickstart.plugins.tmux-navigator',
+  require 'kickstart.plugins.image',
+  require 'kickstart.plugins.ripple',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.

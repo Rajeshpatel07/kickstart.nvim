@@ -51,9 +51,12 @@ case "$language" in
     go build -o "$output" "$dir/$filename" || { echo "Go build failed" >&2; exit 1; }
     "$output"
     ;;
+  sh)
+    bash "$dir/$filename" || { echo "Bash execution failed" >&2; exit 1; }
+    ;;
   *)
     echo "Error: Unsupported language: $language" >&2
-    echo "Supported: c, cpp, typescript, javascript, lua, python, go" >&2
+    echo "Supported: c, cpp, typescript, javascript, lua, python, go, bash" >&2
     exit 1
     ;;
 esac

@@ -110,10 +110,10 @@ vim.o.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
 
-vim.opt.tabstop = 2 -- Number of spaces a <Tab> counts for
-vim.opt.shiftwidth = 2 -- Size of an indent
-vim.opt.softtabstop = 2 -- How many spaces <Tab> feels like
-vim.opt.expandtab = true -- Use spaces instead of tabs
+-- vim.opt.tabstop = 2 -- Number of spaces a <Tab> counts for
+-- vim.opt.shiftwidth = 2 -- Size of an indent
+-- vim.opt.softtabstop = 2 -- How many spaces <Tab> feels like
+-- vim.opt.expandtab = true -- Use spaces instead of tabs
 
 -- Auto Read files
 vim.opt.autoread = true
@@ -336,7 +336,7 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  -- 'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -862,10 +862,10 @@ require('lazy').setup({
         -- You can use 'stop_after_first' to run the first available formatter from the list
         go = { 'gofumpt' },
         c = { 'clang-format' },
-        javascript = { 'biome', 'prettier', stop_after_first = true },
-        javascriptreact = { 'biome', 'prettier', stop_after_first = true },
-        typescript = { 'biome', 'prettier', stop_after_first = true },
-        typescriptreact = { 'biome', 'prettier', stop_after_first = true },
+        javascript = { 'biome', 'prettier' },
+        javascriptreact = { 'biome', 'prettier' },
+        typescript = { 'biome', 'prettier' },
+        typescriptreact = { 'biome', 'prettier' },
       },
     },
   },
@@ -1121,7 +1121,8 @@ require('lazy').setup({
   require 'kickstart.plugins.barbar',
   require 'kickstart.plugins.tmux-navigator',
   require 'kickstart.plugins.image',
-  require 'kickstart.plugins.ripple',
+  -- require 'kickstart.plugins.ripple',
+  require 'kickstart.plugins.render-markdown',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.

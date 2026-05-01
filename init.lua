@@ -271,6 +271,63 @@ vim.keymap.set('n', '<leader>r', function()
   --    if the program asks for input.
   vim.cmd 'startinsert'
 end, { desc = 'Run code in floating terminal' })
+
+vim.keymap.set('n', '<leader>cr', function()
+  local filename = vim.fn.expand '%:t'
+  local dir = vim.fn.expand '%:p:h'
+  local filetype = vim.bo.filetype
+
+  -- Prevent running the script if the current file isn't C++
+  if filetype ~= 'cpp' then
+    print 'Not a C++ file'
+    return
+  end
+
+  -- 1. Create the command to run the dedicated codeforces script
+  local original_cmd = string.format('bash ~/.config/nvim/scripts/codeforces.sh "%s" "%s" "%s"', filename, filetype, dir)
+
+  -- 2. Create a shell command that prints a minimal message and waits for 'Enter'
+  local shell_wait_cmd = "printf '\\nPress Enter to exit... '; read -r"
+
+  -- 3. Chain the original command with the wait command
+  local cmd_to_run = string.format('%s; %s', original_cmd, shell_wait_cmd)
+
+  -- 4. Create a new, empty "scratch" buffer
+  local bufnr = vim.api.nvim_create_buf(false, true)
+
+  -- 5. Define the floating window's appearance
+  local win_height = math.ceil(vim.o.lines * 0.6)
+  local win_width = math.ceil(vim.o.columns * 0.6)
+  local row = math.ceil((vim.o.lines - win_height) / 2)
+  local col = math.ceil((vim.o.columns - win_width) / 2)
+
+  local win_config = {
+    relative = 'editor',
+    width = win_width,
+    height = win_height,
+    row = row,
+    col = col,
+    style = 'minimal',
+    border = 'rounded',
+  }
+
+  -- 6. Open the floating window with the empty buffer
+  local win_id = vim.api.nvim_open_win(bufnr, true, win_config)
+
+  -- 7. Start the terminal
+  vim.fn.termopen(cmd_to_run, {
+    on_exit = function(j, code, event)
+      vim.defer_fn(function()
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          vim.api.nvim_buf_delete(bufnr, { force = true })
+        end
+      end, 100)
+    end,
+  })
+
+  -- 8. Switch to insert mode
+  vim.cmd 'startinsert'
+end, { desc = 'Run Codeforces tests in floating terminal' })
 -- WARN: End of the Keybind
 
 -- TIP: Disable arrow keys in normal mode
@@ -804,6 +861,10 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'gopls',
+        'clangd',
+        'pyright',
+        'ts_ls',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -1120,7 +1181,7 @@ require('lazy').setup({
   require 'kickstart.plugins.gitsigns',
   require 'kickstart.plugins.barbar',
   require 'kickstart.plugins.tmux-navigator',
-  require 'kickstart.plugins.image',
+  -- require 'kickstart.plugins.image',
   -- require 'kickstart.plugins.ripple',
   require 'kickstart.plugins.render-markdown',
 

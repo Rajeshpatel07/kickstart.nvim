@@ -7,14 +7,19 @@ vim.pack.add {
   'https://github.com/MunifTanjim/nui.nvim',
 }
 
-vim.keymap.set('n', '\\', '<Cmd>Neotree reveal<CR>', { desc = 'NeoTree reveal', silent = true })
+if vim.g.have_nerd_font then
+  table.insert(plugins, 'https://github.com/nvim-tree/nvim-web-devicons') -- not strictly required, but recommended
+end
+
+vim.pack.add(plugins)
+
+vim.keymap.set('n', '<leader>e', '<Cmd>Neotree toggle<CR>', { desc = 'Toggle NeoTree', silent = true })
 
 require('neo-tree').setup {
   filesystem = {
-    window = {
-      mappings = {
-        ['\\'] = 'close_window',
+      reveal_on_setup = true,
+      follow_current_file = {
+        enabled = true,
       },
-    },
   },
 }

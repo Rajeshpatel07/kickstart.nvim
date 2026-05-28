@@ -99,7 +99,7 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -110,13 +110,20 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
 
   -- Don't show the mode, since it's already in the status line
   vim.o.showmode = false
+
+  -- Auto Read files
+  vim.opt.autoread = true
+  vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'CursorHoldI', 'FocusGained' }, {
+    command = "if mode() != 'c' | checktime | endif",
+    pattern = { '*' },
+  })
 
   -- Sync clipboard between OS and Neovim.
   --  Schedule the setting after `UiEnter` because it can increase startup-time.
@@ -217,7 +224,14 @@ do
   --
   -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
   -- or just use <C-\><C-n> to exit terminal mode
-  vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+  vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+
+  --NOTE: keymap for opening terminal using tmux
+  vim.keymap.set('n', '<leader>m', '<cmd>!tmux resize-pane -Z \n<CR>', { desc = 'maximize the current pane in tmux' })
+  vim.keymap.set('n', '<leader>wh', '<cmd>!tmux split-window -v \n<CR>', { desc = 'split window horizontally with tmux' })
+  vim.keymap.set('n', '<leader>wv', '<cmd>!tmux split-window -h \n <CR>', { desc = 'split window vertically with tmux' })
+  vim.keymap.set('n', '<leader>w/', '<cmd>split<CR> <C-w>L', { desc = 'split screen vertically in neovim' })
+  vim.keymap.set('n', '<leader>w-', '<cmd>split<CR>', { desc = 'split screen horizontally in neovim' })
 
   -- TIP: Disable arrow keys in normal mode
   -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -423,18 +437,32 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = false }, -- Disable italics in comments
+  vim.pack.add {
+    {
+      src = 'https://github.com/rose-pine/neovim',
+      name = 'rose-pine',
     },
   }
+  require('rose-pine').setup {
+
+    variant = 'moon', -- 'auto' (detects based on time), or 'main', 'moon', 'dawn'
+    dark_variant = 'main', -- Default dark variant
+    enable = {
+      terminal = true,
+    },
+    styles = {
+      italic = false,
+      transparency = true, -- Enable background transparency
+    },
+    -- Optional: Customize further (e.g., dim inactive windows)
+    dim_inactive_windows = false,
+  }
+  vim.cmd 'colorscheme rose-pine'
 
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  -- vim.cmd.colorscheme 'tokyonight-night'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -842,10 +870,13 @@ do
     formatters_by_ft = {
       -- rust = { 'rustfmt' },
       -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
+      python = { 'isort', 'black' },
       --
       -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      javascript = { 'prettierd', 'prettier', 'biome', stop_after_first = true },
+      markdown = { 'mdforamt', stop_after_first = true },
+      c = { 'cland-format' },
+      cpp = { 'cland-format' },
     },
   }
 
@@ -897,6 +928,28 @@ do
       --
       -- See `:help blink-cmp-config-keymap` for defining your own keymap
       preset = 'default',
+
+      -- Select next/previous completion item
+      ['<C-n>'] = { 'select_next', 'fallback_to_mappings' },
+      ['<C-p>'] = { 'select_prev', 'fallback_to_mappings' },
+
+      -- Scroll docs
+      ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
+      ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+
+      -- Confirm completion
+      ['<Enter>'] = { 'select_and_accept', 'fallback' }, -- Equivalent to cmp.mapping.confirm { select = true }
+
+      -- Manually trigger completion menu
+      ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
+
+      -- Snippet jump forward/backward
+      ['<C-l>'] = { 'snippet_forward', 'fallback' },
+      ['<C-h>'] = { 'snippet_backward', 'fallback' },
+
+      -- Optional: you can also add tab bindings if needed
+      ['<Tab>'] = { 'snippet_forward', 'fallback' },
+      ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
 
       -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
       --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -1010,11 +1063,16 @@ do
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug'
-  -- require 'kickstart.plugins.indent_line'
-  -- require 'kickstart.plugins.lint'
-  -- require 'kickstart.plugins.autopairs'
-  -- require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.debug'
+  require 'kickstart.plugins.indent_line'
+  require 'kickstart.plugins.lint'
+  require 'kickstart.plugins.autopairs'
+  require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
+  require 'kickstart.plugins.tmux-navigator'
+  require 'kickstart.plugins.render-markdown'
+  require 'kickstart.plugins.barbar'
+  require 'kickstart.plugins.code-runner'
 
   -- NOTE: You can add your own plugins, configuration, etc. in `lua/custom/plugins/*.lua`.
   --

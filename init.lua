@@ -228,8 +228,8 @@ do
 
   --NOTE: keymap for opening terminal using tmux
   vim.keymap.set('n', '<leader>m', '<cmd>!tmux resize-pane -Z \n<CR>', { desc = 'maximize the current pane in tmux' })
-  vim.keymap.set('n', '<leader>wh', '<cmd>!tmux split-window -v \n<CR>', { desc = 'split window horizontally with tmux' })
-  vim.keymap.set('n', '<leader>wv', '<cmd>!tmux split-window -h \n <CR>', { desc = 'split window vertically with tmux' })
+  vim.keymap.set('n', '<leader>wh', '<cmd>silent !tmux split-window -v -l 20\\%<CR>', { desc = 'split window horizontally with tmux' })
+  vim.keymap.set('n', '<leader>wv', '<cmd>silent !tmux split-window -h -l 25\\%<CR>', { desc = 'split window vertically with tmux' })
   vim.keymap.set('n', '<leader>w/', '<cmd>split<CR> <C-w>L', { desc = 'split screen vertically in neovim' })
   vim.keymap.set('n', '<leader>w-', '<cmd>split<CR>', { desc = 'split screen horizontally in neovim' })
 
@@ -877,6 +877,7 @@ do
       markdown = { 'mdforamt', stop_after_first = true },
       c = { 'cland-format' },
       cpp = { 'cland-format' },
+      markdown = { 'mdformat' },
     },
   }
 

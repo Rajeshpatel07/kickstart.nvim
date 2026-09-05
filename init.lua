@@ -230,8 +230,8 @@ do
   vim.keymap.set('n', '<leader>m', '<cmd>!tmux resize-pane -Z \n<CR>', { desc = 'maximize the current pane in tmux' })
   vim.keymap.set('n', '<leader>wh', '<cmd>silent !tmux split-window -v -l 20\\%<CR>', { desc = 'split window horizontally with tmux' })
   vim.keymap.set('n', '<leader>wv', '<cmd>silent !tmux split-window -h -l 25\\%<CR>', { desc = 'split window vertically with tmux' })
-  vim.keymap.set('n', '<leader>w/', '<cmd>split<CR> <C-w>L', { desc = 'split screen vertically in neovim' })
-  vim.keymap.set('n', '<leader>w-', '<cmd>split<CR>', { desc = 'split screen horizontally in neovim' })
+  vim.keymap.set('n', '<leader>w/', '<cmd>rightbelow vsplit<CR>', { desc = 'split screen vertically in neovim' })
+  vim.keymap.set('n', '<leader>w-', '<cmd>rightbelow split<CR>', { desc = 'split screen horizontally in neovim' })
 
   -- TIP: Disable arrow keys in normal mode
   -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -761,10 +761,10 @@ do
   --  See `:help lsp-config` for information about keys and how to configure
   ---@type table<string, vim.lsp.Config>
   local servers = {
-    -- clangd = {},
-    -- gopls = {},
-    -- pyright = {},
-    -- tsc = {},
+    clangd = {},
+    gopls = {},
+    pyright = {},
+    tsc = {},
     --
     -- Some languages (like rust) have entire language plugins that can be useful:
     --    https://github.com/mrcjkb/rustaceanvim
@@ -873,8 +873,8 @@ do
       python = { 'isort', 'black' },
       --
       -- You can use 'stop_after_first' to run the first available formatter from the list
-      javascript = { 'prettierd', 'prettier', 'biome', stop_after_first = true },
-      markdown = { 'mdforamt', stop_after_first = true },
+      javascript = { 'biome', 'prettierd', 'prettier', stop_after_first = true },
+      typescript = { 'biome', 'prettierd', 'prettier', stop_after_first = true },
       c = { 'cland-format' },
       cpp = { 'cland-format' },
       markdown = { 'mdformat' },
@@ -1069,7 +1069,6 @@ do
   require 'kickstart.plugins.lint'
   require 'kickstart.plugins.autopairs'
   require 'kickstart.plugins.neo-tree'
-  require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
   require 'kickstart.plugins.tmux-navigator'
   require 'kickstart.plugins.render-markdown'
   require 'kickstart.plugins.barbar'
